@@ -6,44 +6,21 @@ import { renderRecipeCard, renderSingleRecipe } from "./ui.js"
 
 const loadRecipe = async (recipeId) => {
 	try {
-		// Mock de recette pour test sans backend
-		// TODO: Supprimer cette ligne quand l'API sera fonctionnelle
-		const recipe = {
-			id: 1,
-			name: "Ratatouille Provençale",
-			cuisine: "Française",
-			difficulty: "Moyen",
-			prepTime: 45,
-			servings: 4,
-			ingredients: [
-				"2 aubergines",
-				"2 courgettes",
-				"2 poivrons rouges",
-				"4 tomates",
-				"1 oignon",
-				"3 gousses d'ail",
-				"Huile d'olive",
-				"Herbes de Provence",
-				"Sel et poivre",
-			],
-			instructions:
-				"Couper tous les légumes en dés. Faire revenir l'oignon et l'ail dans l'huile d'olive. Ajouter les aubergines, puis les courgettes, les poivrons et enfin les tomates. Assaisonner avec les herbes de Provence, sel et poivre. Laisser mijoter 30 minutes à feu doux.",
-			image:
-				"https://images.pexels.com/photos/5190684/pexels-photo-5190684.jpeg",
-		}
-
-		// Appeler l'API pour récupérer la recette par son ID
-		//const recipe = await renderSingleRecipe(recipe)
-		// TODO: appeler renderSingleRecipe(recipe)
 		const recipeDetail = document.getElementById("recipe-detail")
 
-		// Afficher la recette dans la grid
+		// Load recipe from API
+		const recipe = await getOneRecipe(recipeId)
+
+		// Render recipe
 		recipeDetail.innerHTML = renderSingleRecipe(recipe)
 	} catch (error) {
 		console.error("Erreur lors du chargement de la recette:", error.message)
 		alert(
 			"Impossible de charger la recette. Vérifiez que le serveur est demarré."
 		)
+		// Optionnel: Rediriger ou afficher une erreur dans le DOM
+		const recipeDetail = document.getElementById("recipe-detail")
+		recipeDetail.innerHTML = `<div class="alert alert-danger">Erreur: ${error.message}</div>`
 	}
 }
 
@@ -66,8 +43,21 @@ const setupEventListeners = () => {
 	}
 
 	if (deleteButton) {
-		deleteButton.addEventListener("click", () => {
-			alert("Fonction de suppression non implémentée.")
+		deleteButton.addEventListener("click", async () => {
+			if (confirm("Êtes-vous sûr de vouloir supprimer cette recette ?")) {
+				try {
+					// Get ID from URL
+					const urlParams = new URLSearchParams(window.location.search)
+					const recipeId = urlParams.get("id")
+
+					await deletOneRecipe(recipeId)
+					alert("Recette supprimée avec succès")
+					window.location.href = "index.html"
+				} catch (error) {
+					console.error("Erreur lors de la suppression:", error)
+					alert("Erreur lors de la suppression de la recette")
+				}
+			}
 		})
 	}
 }
@@ -77,6 +67,13 @@ document.addEventListener("DOMContentLoaded", () => {
 	const urlParams = new URLSearchParams(window.location.search)
 	const recipeId = urlParams.get("id")
 	console.log("API recipeData:", recipeId)
+
+	if (!recipeId) {
+		alert("ID de recette maquant. Retour à l'accueil.")
+		window.location.href = "index.html"
+		return
+	}
+
 	loadRecipe(recipeId)
 	setupEventListeners()
 })

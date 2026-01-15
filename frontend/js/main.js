@@ -30,6 +30,7 @@ const loadRecipes = async () => {
 		// console.log("Recettes chargées:", recipes)
 
 		// 2. Afficher les recettes dans la grid
+		console.log("Recettes chargées (Full List):", recipes)
 		displayRecipes(recipes)
 	} catch (error) {
 		console.error("Erreur lors du chargement des recettes:", error)
@@ -91,42 +92,39 @@ const setupEventListeners = () => {
 // Cette fonction est appelée quand l'utilisateur soumet le formulaire dans le modal
 
 export const handleAddRecipe = async (event) => {
-	// TODO 1: Empêcher le rechargement de la page
-	// Conseil: utilisez event.preventDefault()
+	event.preventDefault()
 
 	try {
-		// TODO 2: Récupérer les valeurs des champs du formulaire
-		// Les IDs des champs sont: recipeName, recipeIngredients, recipeInstructions, recipePrepTime
-		// Conseil: utilisez document.getElementById('id').value
+		const name = document.getElementById("recipeName").value
+		const ingredientsText = document.getElementById("recipeIngredients").value
+		const instructions = document.getElementById("recipeInstructions").value
+		const prepTime = parseInt(document.getElementById("recipePrepTime").value)
+		const imageUrl = document.getElementById("imageUrl").value
 
-		const name = "" // TODO: récupérer la valeur du champ recipeName
-		const ingredients = "" // TODO: récupérer la valeur du champ recipeIngredients
-		const instructions = "" // TODO: récupérer la valeur du champ recipeInstructions
-		const prepTime = "" // TODO: récupérer la valeur du champ recipePrepTime (convertir en nombre avec parseInt)
-		const imageUrl = "" // TODO: récupérer la valeur du champ recipeImageUrl
+		// Split ingredients by newline and filter empty lines
+		const ingredients = ingredientsText
+			.split("\n")
+			.map((i) => i.trim())
+			.filter((i) => i !== "")
 
-
-		// TODO 3: Créer un objet recette avec les données récupérées
 		const newRecipe = {
-			// TODO: ajouter les propriétés name, ingredients, instructions, prepTime
+			name,
+			ingredients,
+			instructions,
+			prepTime,
+			image: imageUrl || undefined, // Only add if present
 		}
 
-		// TODO 4: Appeler l'API pour créer la recette
-		// Conseil: utilisez await createRecipe(newRecipe)
+		await createRecipe(newRecipe)
 
-		// TODO 5: Fermer le modal après la création
-		// Conseil: Bootstrap fournit une instance de modal accessible via:
-		// const modal = bootstrap.Modal.getInstance(document.getElementById('addRecipeModal'))
-		// modal.hide()
+		// Close modal
+		const modalElement = document.getElementById("addRecipeModal")
+		const modal = bootstrap.Modal.getInstance(modalElement)
+		modal.hide()
 
-		// TODO 6: Afficher un message de succès
-		// Conseil: utilisez alert('Recette ajoutée avec succès!')
-
-		// TODO 7: Recharger la liste des recettes pour afficher la nouvelle
-		// Conseil: appelez la fonction loadRecipes()
-
-		// TODO 8: Réinitialiser le formulaire
-		// Conseil: utilisez event.target.reset()
+		alert("Recette ajoutée avec succès!")
+		loadRecipes()
+		event.target.reset()
 	} catch (error) {
 		console.error("Erreur lors de l'ajout de la recette:", error)
 		alert("Erreur lors de l'ajout de la recette. Veuillez réessayer.")
