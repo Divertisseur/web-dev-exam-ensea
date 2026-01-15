@@ -63,13 +63,19 @@ const setupEventListeners = () => {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-	// receive recipe id from url
+	// receive recipe id from url (support both query param and hash)
 	const urlParams = new URLSearchParams(window.location.search)
-	const recipeId = urlParams.get("id")
+	let recipeId = urlParams.get("id")
+
+	// Fallback to hash if query param is missing (e.g. server stripped it)
+	if (!recipeId && window.location.hash) {
+		recipeId = window.location.hash.substring(1) // remove #
+	}
+
 	console.log("API recipeData:", recipeId)
 
 	if (!recipeId) {
-		alert("ID de recette maquant. Retour à l'accueil.")
+		alert("ID de recette manquant. Retour à l'accueil.")
 		window.location.href = "index.html"
 		return
 	}
